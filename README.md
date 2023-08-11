@@ -1,1 +1,1 @@
-# anomaly-detection-online
+# Tool for automated detection and classification of deforestation using satellite imagery and deep learning techniques
