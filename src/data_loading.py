@@ -18,25 +18,16 @@ from sentinelhub import (
 )
 
 class DataLoader:
-    def __init__(self):
+    def __init__(self, instance_id, sh_client_id, sh_client_secret, sh_base_url='https://services.sentinel-hub.com'):
         
         self.sentinel_hub_config = SHConfig(
-            instance_id='3e8b80d9-d9eb-43e1-84c7-44a569e6ba83',
-            sh_client_id='570d0ec5-4d9b-4852-8d30-45e1af205e89',
-            sh_client_secret='rXF2Lz4|-%yHoe2dPBgp{e-10-[8s?X3*m:)&2r}',
-            sh_base_url='https://services.sentinel-hub.com',
-            sh_auth_base_url='https://services.sentinel-hub.com',
+            instance_id = instance_id,
+            sh_client_id = sh_client_id,
+            sh_client_secret = sh_client_secret,
+            sh_base_url = sh_base_url,
         )
 
-    def get_image(self):
-        betsiboka_coords_wgs84 = (46.16, -16.15, 46.51, -15.58)
-        resolution = 60
-        betsiboka_bbox = BBox(bbox=betsiboka_coords_wgs84, crs=CRS.WGS84)
-        betsiboka_size = bbox_to_dimensions(betsiboka_bbox, resolution=resolution)
-        print(f"Image shape at {resolution} m resolution: {betsiboka_size} pixels")
-
-
-        evalscript_true_color = """
+        self.evalscript_true_color = """
             //VERSION=3
 
             function setup() {
@@ -55,12 +46,21 @@ class DataLoader:
             }
         """
 
-        request_true_color = SentinelHubRequest(
-            evalscript=evalscript_true_color,
+    def get_true_color_request(self,time_interval):
+
+        betsiboka_coords_wgs84 = (-54.346619,-4.621598,-53.919525,-4.053317) # (longitude and latitude coordinates of lower left and upper right corners)
+        resolution = 30
+        betsiboka_bbox = BBox(bbox=betsiboka_coords_wgs84, crs=CRS.WGS84)
+        betsiboka_size = bbox_to_dimensions(betsiboka_bbox, resolution=resolution)
+        print(f"Image shape at {resolution} m resolution: {betsiboka_size} pixels")
+
+        return SentinelHubRequest(
+            evalscript=self.evalscript_true_color,
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=DataCollection.SENTINEL2_L1C,
-                    time_interval=("2020-06-12", "2020-06-13"),
+                    time_interval=time_interval,
+                    mosaicking_order=MosaickingOrder.LEAST_CC,
                 )
             ],
             responses=[SentinelHubRequest.output_response("default", MimeType.PNG)],
@@ -69,28 +69,47 @@ class DataLoader:
             config=self.sentinel_hub_config,
         )
 
-        true_color_imgs = request_true_color.get_data()
+    def get_image(self):
 
-        print(f"Returned data is of type = {type(true_color_imgs)} and length {len(true_color_imgs)}.")
-        print(f"Single element in the list is of type {type(true_color_imgs[-1])} and has shape {true_color_imgs[-1].shape}")
-
-        image = true_color_imgs[0]
-        print(f"Image type: {image.dtype}")
+        betsiboka_coords_wgs84 = (-54.346619,-4.621598,-53.919525,-4.053317) # (longitude and latitude coordinates of lower left and upper right corners)
+        resolution = 30
+        betsiboka_bbox = BBox(bbox=betsiboka_coords_wgs84, crs=CRS.WGS84)
+        betsiboka_size = bbox_to_dimensions(betsiboka_bbox, resolution=resolution)
         
-        # Adjust brightness
-        brightness_factor = 3.5 / 255
-        brightened_image = np.clip(image * brightness_factor, 0, 1)
+        start_year = 2017
+        end_year = 2023
+        month = [7,8]
+        time_intervals = []
+    
+        for year in range(start_year, end_year + 1):
+            start_date = datetime.datetime(year, month[0], 1)
+            end_date = datetime.datetime(year, month[1], 31)
+                
+            time_intervals.append((start_date.date().isoformat(), end_date.date().isoformat()))
 
-        plt.imshow(brightened_image, aspect='auto')
-        plt.title('True Color Image')
-        plt.xlabel('Pixel Column')
-        plt.ylabel('Pixel Row')
+        print(time_intervals)
+
+
+        #true_color_imgs = request_true_color.get_data()
+
+        # create a list of requests
+        list_of_requests = [self.get_true_color_request(slot) for slot in time_intervals]
+        list_of_requests = [request.download_list[0] for request in list_of_requests]
+
+        # download data with multiple threads
+        data = SentinelHubDownloadClient(config=self.sentinel_hub_config).download(list_of_requests, max_threads=5)
+
+        ncols = 4
+        nrows = 2
+        aspect_ratio = betsiboka_size[0] / betsiboka_size[1]
+        subplot_kw = {"xticks": [], "yticks": [], "frame_on": False}
+
+        fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(5 * ncols * aspect_ratio, 5 * nrows), subplot_kw=subplot_kw)
+
+        for idx, image in enumerate(data):
+            ax = axs[idx // ncols][idx % ncols]
+            ax.imshow(np.clip(image * 2.5 / 255, 0, 1))
+            ax.set_title(f"{time_intervals[idx][0]}  -  {time_intervals[idx][1]}", fontsize=10)
+
+        plt.tight_layout()
         plt.show()
-
-        # plot function
-        # factor 1/255 to scale between 0-1
-        # factor 3.5 to increase brightness
-        #plot_image(image, factor=3.5 / 255, clip_range=(0, 1))
-
-
-
