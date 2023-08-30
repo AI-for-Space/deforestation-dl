@@ -48,11 +48,7 @@ class DataLoader:
 
     def get_true_color_request(self,time_interval):
 
-        betsiboka_coords_wgs84 = (-54.346619,-4.621598,-53.919525,-4.053317) # (longitude and latitude coordinates of lower left and upper right corners)
-        resolution = 30
-        betsiboka_bbox = BBox(bbox=betsiboka_coords_wgs84, crs=CRS.WGS84)
-        betsiboka_size = bbox_to_dimensions(betsiboka_bbox, resolution=resolution)
-        print(f"Image shape at {resolution} m resolution: {betsiboka_size} pixels")
+        print(f"Image shape at {self.resolution} m resolution: {self.betsiboka_size} pixels")
 
         return SentinelHubRequest(
             evalscript=self.evalscript_true_color,
@@ -64,17 +60,17 @@ class DataLoader:
                 )
             ],
             responses=[SentinelHubRequest.output_response("default", MimeType.PNG)],
-            bbox=betsiboka_bbox,
-            size=betsiboka_size,
+            bbox=self.betsiboka_bbox,
+            size=self.betsiboka_size,
             config=self.sentinel_hub_config,
         )
 
     def get_image(self):
 
-        betsiboka_coords_wgs84 = (-54.346619,-4.621598,-53.919525,-4.053317) # (longitude and latitude coordinates of lower left and upper right corners)
-        resolution = 30
-        betsiboka_bbox = BBox(bbox=betsiboka_coords_wgs84, crs=CRS.WGS84)
-        betsiboka_size = bbox_to_dimensions(betsiboka_bbox, resolution=resolution)
+        self.betsiboka_coords_wgs84 = (-54.346619,-4.621598,-53.919525,-4.053317) # (longitude and latitude coordinates of lower left and upper right corners)
+        self.resolution = 30
+        self.betsiboka_bbox = BBox(bbox=self.betsiboka_coords_wgs84, crs=CRS.WGS84)
+        self.betsiboka_size = bbox_to_dimensions(self.betsiboka_bbox, resolution=self.resolution)
         
         start_year = 2017
         end_year = 2023
@@ -89,9 +85,6 @@ class DataLoader:
 
         print(time_intervals)
 
-
-        #true_color_imgs = request_true_color.get_data()
-
         # create a list of requests
         list_of_requests = [self.get_true_color_request(slot) for slot in time_intervals]
         list_of_requests = [request.download_list[0] for request in list_of_requests]
@@ -101,7 +94,7 @@ class DataLoader:
 
         ncols = 4
         nrows = 2
-        aspect_ratio = betsiboka_size[0] / betsiboka_size[1]
+        aspect_ratio = self.betsiboka_size[0] / self.betsiboka_size[1]
         subplot_kw = {"xticks": [], "yticks": [], "frame_on": False}
 
         fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(5 * ncols * aspect_ratio, 5 * nrows), subplot_kw=subplot_kw)
