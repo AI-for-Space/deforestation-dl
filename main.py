@@ -9,7 +9,7 @@ def main():
     SH_CLIENT_SECRET = 'rXF2Lz4|-%yHoe2dPBgp{e-10-[8s?X3*m:)&2r}'
 
     loader = DataLoader(INSTACE_ID,SH_CLIENT_ID,SH_CLIENT_SECRET)
-    loader.get_image()
+    loader.get_image(-4.447581,-54.980870)
 
 
 

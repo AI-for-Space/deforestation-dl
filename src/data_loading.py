@@ -65,9 +65,20 @@ class DataLoader:
             config=self.sentinel_hub_config,
         )
 
-    def get_image(self):
+    def get_image(self, latitude, longitude):
 
-        self.betsiboka_coords_wgs84 = (-54.346619,-4.621598,-53.919525,-4.053317) # (longitude and latitude coordinates of lower left and upper right corners)
+        # Define the desired width and height of the bounding box in degrees
+        bbox_width = 0.6  # Example: 0.1 degrees (approximately 11.1 km at the equator)
+        bbox_height = 0.6
+
+        # Calculate the bounding box coordinates
+        lower_left_lat = latitude - bbox_height / 2
+        lower_left_lon = longitude - bbox_width / 2
+        upper_right_lat = latitude + bbox_height / 2
+        upper_right_lon = longitude + bbox_width / 2
+
+        # Create the bounding box
+        self.betsiboka_coords_wgs84 = (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
         self.resolution = 30
         self.betsiboka_bbox = BBox(bbox=self.betsiboka_coords_wgs84, crs=CRS.WGS84)
         self.betsiboka_size = bbox_to_dimensions(self.betsiboka_bbox, resolution=self.resolution)
