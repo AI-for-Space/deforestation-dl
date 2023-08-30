@@ -57,6 +57,7 @@ class DataLoader:
                     data_collection=DataCollection.SENTINEL2_L1C,
                     time_interval=time_interval,
                     mosaicking_order=MosaickingOrder.LEAST_CC,
+                    maxcc = 0.3, #cloud coverage
                 )
             ],
             responses=[SentinelHubRequest.output_response("default", MimeType.PNG)],
