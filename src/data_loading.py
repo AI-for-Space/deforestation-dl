@@ -3,6 +3,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
 from sentinelhub import (
     SHConfig,
@@ -45,6 +46,7 @@ class DataLoader:
                 return [sample.B04, sample.B03, sample.B02];
             }
         """
+        self.year_data={}
 
     def get_true_color_request(self,time_interval):
 
@@ -104,17 +106,34 @@ class DataLoader:
         # download data with multiple threads
         data = SentinelHubDownloadClient(config=self.sentinel_hub_config).download(list_of_requests, max_threads=5)
 
-        ncols = 4
-        nrows = 2
-        aspect_ratio = self.betsiboka_size[0] / self.betsiboka_size[1]
-        subplot_kw = {"xticks": [], "yticks": [], "frame_on": False}
+        # Loop through each time interval
+        year = start_year
+        for image in data:
+            fragment_list = []
+            for y in range(0, self.betsiboka_size[1], 200):
+                for x in range(0, self.betsiboka_size[0], 200):
+                    fragment = image[y:y+200, x:x+200, :]
+                    fragment_list.append(fragment)
+            # Store fragments in arrays by year
+            self.year_data[year] = fragment_list
+            year = year + 1
+    
+    def display_random_samples(self, number_of_samples):
+        ncols = len(self.year_data)
+        nrows = number_of_samples  # Number of rows of samples
 
-        fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(5 * ncols * aspect_ratio, 5 * nrows), subplot_kw=subplot_kw)
+        fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(5 * ncols , 5 * nrows))
 
-        for idx, image in enumerate(data):
-            ax = axs[idx // ncols][idx % ncols]
-            ax.imshow(np.clip(image * 2.5 / 255, 0, 1))
-            ax.set_title(f"{time_intervals[idx][0]}  -  {time_intervals[idx][1]}", fontsize=10)
-
+        for i in range(nrows):
+            index_random_image = random.randint(0, 50)
+            for j,year in enumerate(self.year_data.keys()):
+                # Get a random image from the selected year
+                ax = axs[i, j]
+                image = self.year_data[year][index_random_image]
+                ax.imshow(np.clip(image * 2.5 / 255, 0, 1))
+                ax.set_title(f"Year {year}", fontsize=10)
+                ax.axis('off')
+        
         plt.tight_layout()
         plt.show()
+
