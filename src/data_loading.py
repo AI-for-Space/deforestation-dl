@@ -33,13 +33,13 @@ class DataLoader:
             sh_base_url = sh_base_url,
         )
 
-        self.evalscript_true_color = """
+        self.evalscript_true_color_rgb = """
             //VERSION=3
 
             function setup() {
                 return {
                     input: [{
-                        bands: ["B02", "B03", "B04", "B08"]
+                        bands: ["B02", "B03", "B04"]
                     }],
                     output: {
                         bands: 3
@@ -48,14 +48,57 @@ class DataLoader:
             }
 
             function evaluatePixel(sample) {
-                return [sample.B04, sample.B03, sample.B02];
+                return [2.5 * sample.B04, 2.5 * sample.B03, 2.5 * sample.B02];
             }
         """
+
+        self.evalscript_nvdi = """
+            //VERSION=3
+
+            function setup() {
+            return {
+                input: [{
+                bands:["B04", "B08"],
+                }],
+                output: {
+                id: "default",
+                bands: 3,
+                }
+            }
+            }
+
+            function evaluatePixel(sample) {
+                let val = (sample.B08 - sample.B04) / (sample.B08 + sample.B04)
+
+                if (val<-0.5) return [0.05,0.05,0.05]
+                else if (val<-0.2) return [0.75,0.75,0.75]
+                else if (val<-0.1) return [0.86,0.86,0.86]
+                else if (val<0) return [0.92,0.92,0.92]
+                else if (val<0.025) return [1,0.98,0.8]
+                else if (val<0.05) return [0.93,0.91,0.71]
+                else if (val<0.075) return [0.87,0.85,0.61]
+                else if (val<0.1) return [0.8,0.78,0.51]
+                else if (val<0.125) return [0.74,0.72,0.42]
+                else if (val<0.15) return [0.69,0.76,0.38]
+                else if (val<0.175) return [0.64,0.8,0.35]
+                else if (val<0.2) return [0.57,0.75,0.32]
+                else if (val<0.25) return [0.5,0.7,0.28]
+                else if (val<0.3) return [0.44,0.64,0.25]
+                else if (val<0.35) return [0.38,0.59,0.21]
+                else if (val<0.4) return [0.31,0.54,0.18]
+                else if (val<0.45) return [0.25,0.49,0.14]
+                else if (val<0.5) return [0.19,0.43,0.11]
+                else if (val<0.55) return [0.13,0.38,0.07]
+                else if (val<0.6) return [0.06,0.33,0.04]
+                else return [0,0.27,0];  
+            }
+        """
+
         self.year_data={}
 
     def get_true_color_request(self,time_interval):
         return SentinelHubRequest(
-            evalscript=self.evalscript_true_color,
+            evalscript=self.evalscript_nvdi,
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=DataCollection.SENTINEL2_L2A,
@@ -114,6 +157,9 @@ class DataLoader:
                 end_date = datetime.datetime(year, month[1], 31)
                 time_interval = (start_date.date().isoformat(), end_date.date().isoformat())
                 image =  self.get_true_color_request(time_interval).get_data()[0]
+                plt.imshow(image, cmap='gray')
+                plt.title('Image in RGB')
+                plt.show()
                 print(f"Getting image from Sentinel Hub from year {year}")
                 data.append(image)
                 cv2.imwrite(filepath, image)
