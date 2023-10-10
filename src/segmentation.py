@@ -201,4 +201,5 @@ class Segmentator:
             plt.title('Areas detected')
             plt.show()
 
+        return image_filled
 

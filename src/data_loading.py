@@ -96,9 +96,9 @@ class DataLoader:
 
         self.year_data={}
 
-    def get_true_color_request(self,time_interval):
+    def get_request(self,time_interval, evalscript):
         return SentinelHubRequest(
-            evalscript=self.evalscript_nvdi,
+            evalscript=evalscript,
             input_data=[
                 SentinelHubRequest.input_data(
                     data_collection=DataCollection.SENTINEL2_L2A,
@@ -113,7 +113,7 @@ class DataLoader:
             config=self.sentinel_hub_config,
         )
 
-    def get_image(self, latitude, longitude, size_fragments):
+    def get_image(self, latitude, longitude, size_fragments, start_year, end_year, month):
         # Define the desired width and height of the bounding box in degrees
         bbox_width = 0.3  # Example: 0.1 degrees (approximately 11.1 km at the equator)
         bbox_height = 0.3
@@ -131,10 +131,6 @@ class DataLoader:
         self.image_size = bbox_to_dimensions(self.image_bbox, resolution=self.resolution) # Size of the final image
         
         # Create Time Intervals
-        start_year = 2017
-        end_year = 2023
-        month = [7,8]
-
         data = []
     
         for year in range(start_year, end_year + 1):
@@ -156,7 +152,7 @@ class DataLoader:
                 start_date = datetime.datetime(year, month[0], 1)
                 end_date = datetime.datetime(year, month[1], 31)
                 time_interval = (start_date.date().isoformat(), end_date.date().isoformat())
-                image =  self.get_true_color_request(time_interval).get_data()[0]
+                image =  self.get_request(time_interval,self.evalscript_nvdi).get_data()[0]
                 plt.imshow(image, cmap='gray')
                 plt.title('Image in RGB')
                 plt.show()

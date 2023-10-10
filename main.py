@@ -10,9 +10,9 @@ def main():
 
     loader = DataLoader(INSTACE_ID,SH_CLIENT_ID,SH_CLIENT_SECRET)
     segmentator = Segmentator()
-    loader.get_image(-3.764226,-52.128754, 400)
+    loader.get_image(-3.764226,-52.128754, 150, 2017, 2023, [7,8])
     loader.display_random_samples(3)
-    #loader.segment_fast_sam(2018,4)
+    segmentator.segment(loader.year_data[2017][9],None,True)
     print("Jello")
 
 
