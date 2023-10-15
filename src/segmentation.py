@@ -98,24 +98,38 @@ class Segmentator:
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    def segment(self, image_dataset = None, image_path = None, show_plots = False):
+    def segment(self, image_to_segment, image_rgb=None, show_plots = False):
 
         image = None
 
-        if image_path is None:
+        """if image_path is None:
             image = image_dataset
         else:
-            image = cv2.imread(image_path)
+            image = cv2.imread(image_path)"""
         
 
-        img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        if image_rgb is not None:
+            image_rgb = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2RGB)
+        image_to_segment = cv2.cvtColor(image_to_segment, cv2.COLOR_BGR2RGB)
 
-        if show_plots is True:
-            plt.imshow(img_rgb, cmap='gray')
+        if show_plots is True and image_rgb is not None:
+            plt.imshow(np.clip(image_rgb * 2.5 / 255, 0, 1), cmap='gray')
             plt.title('Image in RGB')
             plt.show()
 
-        gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        if show_plots is True:
+            plt.imshow(np.clip(image_to_segment * 2.5 / 255, 0, 1), cmap='gray')
+            plt.title('Image to segment')
+            plt.show()
+        
+        # Otra forma de mostrar el histograma (solo visualización)
+        if show_plots is True:
+            plt.hist(image_to_segment.ravel(), bins=50) # .ravel convierte un array multidimensional en una dimension
+            plt.grid(True)
+            plt.title('Histogram of colors in image to segment')
+            plt.show()
+
+        gray_img = image_to_segment[:,:,1]
 
         if show_plots is True:
             plt.imshow(gray_img, cmap='gray')
@@ -136,26 +150,12 @@ class Segmentator:
             plt.grid(True)
             plt.show()
 
-        """
         # Fijamos el umbral en base al histograma anterior
-        t = 22
+        #t = 50
 
         # Extreaemos la máscara binaria
-        maxim = 255
-        _, final_mask = cv2.threshold(gray_img, t, maxim, cv2.THRESH_BINARY)
-
-        # Otra formas de extraer la máscara 
-        # mask = gray_img.copy()
-        # mask = mask>t
-
-        # Visualizamos para corroborar
-        plt.imshow(final_mask, cmap='gray')
-        plt.title('Máscara t=' + str(t))
-        plt.show()
-
-        print(np.unique(final_mask)) # Atent@s a los formatos (bool, uint8, etc.)
-
-        """
+        #maxim = 255
+        #_, final_mask = cv2.threshold(gray_img, t, maxim, cv2.THRESH_BINARY)
 
         # Fijamos el umbral con el método de OTSU
         t, final_mask = cv2.threshold(gray_img,0,1,cv2.THRESH_OTSU) # 0 es por defecto y 1 es el valor máximo de la máscara
@@ -192,11 +192,9 @@ class Segmentator:
         # Dibujar los contornos de los lúmenes en color verde sobre la imagen original RGB. Nota: Utilizar los flags necesarios
         # para que los contornos en verde sean perfectamente visibles. 
         # Visualizar la imagen superpuesta
-
-        conts,_ = cv2.findContours(image_filled, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) # Encontramos los contornos en una máscara 
-        image_with_conts = cv2.drawContours(img_rgb.copy(), conts, -1, (124,47,135), 5) # Dibujamos los contornos
-
-        if show_plots is True:               
+        if image_rgb is not None and show_plots is True:
+            conts,_ = cv2.findContours(image_filled, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) # Encontramos los contornos en una máscara 
+            image_with_conts = cv2.drawContours(np.clip(image_rgb.copy() * 2.5 / 255, 0, 1), conts, -1, (124,47,135), 1) # Dibujamos los contornos          
             plt.imshow(image_with_conts, cmap='gray')
             plt.title('Areas detected')
             plt.show()

@@ -155,6 +155,151 @@ class DataLoader:
                     }
                 """
         }
+
+        self.evalscript_nvdi = """
+            //VERSION=3
+
+            function setup() {
+            return {
+                input: [{
+                bands:["B04", "B08"],
+                }],
+                output: {
+                id: "default",
+                bands: 3,
+                }
+            }
+            }
+
+            function evaluatePixel(sample) {
+                let val = (sample.B08 - sample.B04) / (sample.B08 + sample.B04)
+
+                if (val<-0.5) return [0.05,0.05,0.05]
+                else if (val<-0.2) return [0.75,0.75,0.75]
+                else if (val<-0.1) return [0.86,0.86,0.86]
+                else if (val<0) return [0.92,0.92,0.92]
+                else if (val<0.025) return [1,0.98,0.8]
+                else if (val<0.05) return [0.93,0.91,0.71]
+                else if (val<0.075) return [0.87,0.85,0.61]
+                else if (val<0.1) return [0.8,0.78,0.51]
+                else if (val<0.125) return [0.74,0.72,0.42]
+                else if (val<0.15) return [0.69,0.76,0.38]
+                else if (val<0.175) return [0.64,0.8,0.35]
+                else if (val<0.2) return [0.57,0.75,0.32]
+                else if (val<0.25) return [0.5,0.7,0.28]
+                else if (val<0.3) return [0.44,0.64,0.25]
+                else if (val<0.35) return [0.38,0.59,0.21]
+                else if (val<0.4) return [0.31,0.54,0.18]
+                else if (val<0.45) return [0.25,0.49,0.14]
+                else if (val<0.5) return [0.19,0.43,0.11]
+                else if (val<0.55) return [0.13,0.38,0.07]
+                else if (val<0.6) return [0.06,0.33,0.04]
+                else return [0,0.27,0];  
+            }
+        """
+
+        self.evalscript_functions = {
+            'rgb': """
+                    //VERSION=3
+
+                    function setup() {
+                        return {
+                            input: [{
+                                bands: ["B02", "B03", "B04"]
+                            }],
+                            output: {
+                                bands: 3
+                            }
+                        };
+                    }
+
+                    function evaluatePixel(sample) {
+                        return [2.5 * sample.B04, 2.5 * sample.B03, 2.5 * sample.B02];
+                    }
+                """,
+            'nvdi': """
+                    //VERSION=3
+
+                    function setup() {
+                    return {
+                        input: [{
+                        bands:["B04", "B08"],
+                        }],
+                        output: {
+                        id: "default",
+                        bands: 3,
+                        }
+                    }
+                    }
+
+                    function evaluatePixel(sample) {
+                        let val = (sample.B08 - sample.B04) / (sample.B08 + sample.B04)
+
+                        if (val<-0.5) return [0.05,0.05,0.05]
+                        else if (val<-0.2) return [0.75,0.75,0.75]
+                        else if (val<-0.1) return [0.86,0.86,0.86]
+                        else if (val<0) return [0.92,0.92,0.92]
+                        else if (val<0.025) return [1,0.98,0.8]
+                        else if (val<0.05) return [0.93,0.91,0.71]
+                        else if (val<0.075) return [0.87,0.85,0.61]
+                        else if (val<0.1) return [0.8,0.78,0.51]
+                        else if (val<0.125) return [0.74,0.72,0.42]
+                        else if (val<0.15) return [0.69,0.76,0.38]
+                        else if (val<0.175) return [0.64,0.8,0.35]
+                        else if (val<0.2) return [0.57,0.75,0.32]
+                        else if (val<0.25) return [0.5,0.7,0.28]
+                        else if (val<0.3) return [0.44,0.64,0.25]
+                        else if (val<0.35) return [0.38,0.59,0.21]
+                        else if (val<0.4) return [0.31,0.54,0.18]
+                        else if (val<0.45) return [0.25,0.49,0.14]
+                        else if (val<0.5) return [0.19,0.43,0.11]
+                        else if (val<0.55) return [0.13,0.38,0.07]
+                        else if (val<0.6) return [0.06,0.33,0.04]
+                        else return [0,0.27,0];  
+                    }
+                """,
+                'nvdi_edited': """
+                    //VERSION=3
+
+                    function setup() {
+                    return {
+                        input: [{
+                        bands:["B04", "B08"],
+                        }],
+                        output: {
+                        id: "default",
+                        bands: 3,
+                        }
+                    }
+                    }
+
+                    function evaluatePixel(sample) {
+                        let val = (sample.B08 - sample.B04) / (sample.B08 + sample.B04)
+
+                        if (val<-0.5) return [0.05,0.05,0.05]
+                        else if (val<-0.2) return [0.75,0.75,0.75]
+                        else if (val<-0.1) return [0.86,0.86,0.86]
+                        else if (val<0) return [0.92,0.92,0.92]
+                        else if (val<0.025) return [1,0.98,0.8]
+                        else if (val<0.05) return [0.93,0.91,0.71]
+                        else if (val<0.075) return [0.87,0.85,0.61]
+                        else if (val<0.1) return [0.8,0.78,0.51]
+                        else if (val<0.125) return [0.74,0.72,0.42]
+                        else if (val<0.15) return [0.69,0.76,0.38]
+                        else if (val<0.175) return [0.64,0.8,0.35]
+                        else if (val<0.2) return [0.57,0.75,0.32]
+                        else if (val<0.25) return [0.5,0.7,0.28]
+                        else if (val<0.3) return [0.44,0.64,0.25]
+                        else if (val<0.35) return [0.38,0.59,0.21]
+                        else if (val<0.4) return [0.31,0.54,0.18]
+                        else if (val<0.45) return [0.25,0.49,0.14]
+                        else if (val<0.5) return [0.19,0.43,0.11]
+                        else if (val<0.55) return [0.13,0.38,0.07]
+                        else if (val<0.9) return [0.06,0.33,0.04]
+                        else return [0,0.27,0];  
+                    }
+                """
+        }
         self.year_data={}
 
     def get_request(self,time_interval, evalscript,cloud_coverage):
@@ -176,8 +321,8 @@ class DataLoader:
 
     def get_image(self, latitude, longitude, size_fragments, start_year, end_year, month, types_image, cloud_coverage):
         # Define the desired width and height of the bounding box in degrees
-        bbox_width = 0.3  # Example: 0.1 degrees (approximately 11.1 km at the equator)
-        bbox_height = 0.3
+        bbox_width = 0.2  # Example: 0.1 degrees (approximately 11.1 km at the equator)
+        bbox_height = 0.2
 
         # Calculate the bounding box coordinates
         lower_left_lat = latitude - bbox_height / 2
@@ -187,7 +332,7 @@ class DataLoader:
 
         # Create the bounding box
         self.image_coords_wgs84 = (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
-        self.resolution = 20
+        self.resolution = 9
         self.image_bbox = BBox(bbox=self.image_coords_wgs84, crs=CRS.WGS84)
         self.image_size = bbox_to_dimensions(self.image_bbox, resolution=self.resolution) # Size of the final image
         
@@ -219,7 +364,7 @@ class DataLoader:
                     end_date = datetime.datetime(year, month[1], 31)
                     time_interval = (start_date.date().isoformat(), end_date.date().isoformat())
                     image =  self.get_request(time_interval,self.evalscript_functions[type_image],cloud_coverage).get_data()[0]
-                    print(f"Getting image from Sentinel Hub from year {year} in {type_image}")
+                    print(f"Getting image from Sentinel Hub from year {year} in {type_image} with a resolution of {self.image_size[0]}x{self.image_size[1]}")
                     data.append(image)
                     cv2.imwrite(filepath, image)
                     
@@ -258,8 +403,24 @@ class DataLoader:
                 ax = axs[i, j]
                 image = self.year_data[year][type_image][index_random_image]
                 ax.imshow(np.clip(image * 2.5 / 255, 0, 1))
-                ax.set_title(f"Year {year}", fontsize=10)
+                ax.set_title(f"Year {year} - Index {index_random_image}", fontsize=10)
                 ax.axis('off')
         
+        plt.tight_layout()
+        plt.show()
+    
+    def display_region_along_years(self, index, type_image):
+        ncols = len(self.year_data)
+
+        fig, axs = plt.subplots(ncols=ncols, figsize=(5 * ncols, 5))
+
+        for j, year in enumerate(self.year_data.keys()):
+            # Get a random image from the selected year
+            ax = axs[j]  # Use a single index for the subplot
+            image = self.year_data[year][type_image][index]
+            ax.imshow(np.clip(image * 2.5 / 255, 0, 1))
+            ax.set_title(f"Year {year} - Index {index}", fontsize=10)
+            ax.axis('off')
+
         plt.tight_layout()
         plt.show()
