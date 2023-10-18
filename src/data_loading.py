@@ -300,7 +300,6 @@ class DataLoader:
                     }
                 """
         }
-        self.year_data={}
 
     def get_request(self,time_interval, evalscript,cloud_coverage):
         return SentinelHubRequest(
@@ -320,6 +319,9 @@ class DataLoader:
         )    
 
     def get_image(self, latitude, longitude, size_fragments, start_year, end_year, month, types_image, cloud_coverage):
+        # Where we are going to save all fragments of images for a coordinate
+        dataset={}
+
         # Define the desired width and height of the bounding box in degrees
         bbox_width = 0.2  # Example: 0.1 degrees (approximately 11.1 km at the equator)
         bbox_height = 0.2
@@ -338,7 +340,7 @@ class DataLoader:
         
         # Create dictionaries by years to save images
         for year in range(start_year, end_year + 1):
-            self.year_data[year] = {}
+            dataset[year] = {}
 
         for type_image in types_image:
 
@@ -386,22 +388,26 @@ class DataLoader:
                         if fragment.shape[0] == size_fragments and fragment.shape[1] == size_fragments:
                             fragment_list.append(fragment)
                 # Store fragments in arrays by year
-                self.year_data[year][type_image] = fragment_list
+                dataset[year][type_image] = fragment_list
                 year = year + 1
+        
+        print(f"Number of samples (fragments) for every year is ${len(dataset[start_year][types_image[0]])}")
+
+        return dataset
     
-    def display_random_samples(self, number_of_samples,type_image):
-        ncols = len(self.year_data)
+    def display_random_samples(self, dataset, number_of_samples,type_image):
+        ncols = len(dataset.keys())
         nrows = number_of_samples  # Number of rows of samples
 
         fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(5 * ncols , 5 * nrows))
 
         for i in range(nrows):
-            number_of_fragments = len(self.year_data[2017]['rgb'])
+            number_of_fragments = len(dataset[2017]['rgb'])
             index_random_image = random.randint(0, number_of_fragments)
-            for j,year in enumerate(self.year_data.keys()):
+            for j,year in enumerate(dataset.keys()):
                 # Get a random image from the selected year
                 ax = axs[i, j]
-                image = self.year_data[year][type_image][index_random_image]
+                image = dataset[year][type_image][index_random_image]
                 ax.imshow(np.clip(image * 2.5 / 255, 0, 1))
                 ax.set_title(f"Year {year} - Index {index_random_image}", fontsize=10)
                 ax.axis('off')
@@ -409,15 +415,15 @@ class DataLoader:
         plt.tight_layout()
         plt.show()
     
-    def display_region_along_years(self, index, type_image):
-        ncols = len(self.year_data)
+    def display_region_along_years(self, dataset, index, type_image):
+        ncols = len(dataset)
 
         fig, axs = plt.subplots(ncols=ncols, figsize=(5 * ncols, 5))
 
-        for j, year in enumerate(self.year_data.keys()):
+        for j, year in enumerate(dataset.keys()):
             # Get a random image from the selected year
             ax = axs[j]  # Use a single index for the subplot
-            image = self.year_data[year][type_image][index]
+            image = dataset[year][type_image][index]
             ax.imshow(np.clip(image * 2.5 / 255, 0, 1))
             ax.set_title(f"Year {year} - Index {index}", fontsize=10)
             ax.axis('off')
