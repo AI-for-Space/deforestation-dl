@@ -274,29 +274,61 @@ class DataLoader:
                     }
 
                     function evaluatePixel(sample) {
-                        let val = (sample.B08 - sample.B04) / (sample.B08 + sample.B04)
+                        let ndvi = (sample.B08 - sample.B04) / (sample.B08 + sample.B04)
 
-                        if (val<-0.5) return [0.05,0.05,0.05]
-                        else if (val<-0.2) return [0.75,0.75,0.75]
-                        else if (val<-0.1) return [0.86,0.86,0.86]
-                        else if (val<0) return [0.92,0.92,0.92]
-                        else if (val<0.025) return [1,0.98,0.8]
-                        else if (val<0.05) return [0.93,0.91,0.71]
-                        else if (val<0.075) return [0.87,0.85,0.61]
-                        else if (val<0.1) return [0.8,0.78,0.51]
-                        else if (val<0.125) return [0.74,0.72,0.42]
-                        else if (val<0.15) return [0.69,0.76,0.38]
-                        else if (val<0.175) return [0.64,0.8,0.35]
-                        else if (val<0.2) return [0.57,0.75,0.32]
-                        else if (val<0.25) return [0.5,0.7,0.28]
-                        else if (val<0.3) return [0.44,0.64,0.25]
-                        else if (val<0.35) return [0.38,0.59,0.21]
-                        else if (val<0.4) return [0.31,0.54,0.18]
-                        else if (val<0.45) return [0.25,0.49,0.14]
-                        else if (val<0.5) return [0.19,0.43,0.11]
-                        else if (val<0.55) return [0.13,0.38,0.07]
-                        else if (val<0.9) return [0.06,0.33,0.04]
-                        else return [0,0.27,0];  
+                        if (ndvi < 0) return [0.05, 0.05, 0.05];
+                        else if (ndvi < 0.05) return [0.75, 0.75, 0.75];
+                        else if (ndvi < 0.1) return [0.86, 0.86, 0.86];
+                        else if (ndvi < 0.15) return [0.92, 0.92, 0.92];
+                        else if (ndvi < 0.2) return [1, 0.98, 0.8];
+                        else if (ndvi < 0.25) return [0.93, 0.91, 0.71];
+                        else if (ndvi < 0.3) return [0.87, 0.85, 0.61];
+                        else if (ndvi < 0.35) return [0.8, 0.78, 0.51];
+                        else if (ndvi < 0.4) return [0.74, 0.72, 0.42];
+                        else if (ndvi < 0.45) return [0.69, 0.76, 0.38];
+                        else if (ndvi < 0.5) return [0.64, 0.8, 0.35];
+                        else if (ndvi < 0.55) return [0.57, 0.75, 0.32];
+                        else if (ndvi < 0.6) return [0.5, 0.7, 0.28];
+                        else if (ndvi < 0.61) return [0.48, 0.69, 0.27];  // Additional intervals starting at 0.6
+                        else if (ndvi < 0.62) return [0.46, 0.68, 0.26];
+                        else if (ndvi < 0.63) return [0.44, 0.67, 0.25];
+                        else if (ndvi < 0.64) return [0.42, 0.66, 0.24];
+                        else if (ndvi < 0.65) return [0.4, 0.65, 0.23];
+                        else if (ndvi < 0.66) return [0.38, 0.64, 0.22];
+                        else if (ndvi < 0.67) return [0.36, 0.63, 0.21];
+                        else if (ndvi < 0.68) return [0.34, 0.62, 0.2];
+                        else if (ndvi < 0.69) return [0.32, 0.61, 0.19];
+                        else if (ndvi < 0.7) return [0.31, 0.6, 0.18];
+                        else if (ndvi < 0.71) return [0.3, 0.59, 0.175];
+                        else if (ndvi < 0.72) return [0.29, 0.58, 0.17];
+                        else if (ndvi < 0.73) return [0.28, 0.57, 0.165];
+                        else if (ndvi < 0.74) return [0.27, 0.56, 0.16];
+                        else if (ndvi < 0.75) return [0.26, 0.55, 0.155];
+                        else if (ndvi < 0.76) return [0.25, 0.54, 0.15];
+                        else if (ndvi < 0.77) return [0.24, 0.53, 0.145];
+                        else if (ndvi < 0.78) return [0.23, 0.52, 0.14];
+                        else if (ndvi < 0.79) return [0.22, 0.51, 0.135];
+                        else if (ndvi < 0.8) return [0.21, 0.5, 0.13];
+                        else if (ndvi < 0.81) return [0.2, 0.49, 0.125];
+                        else if (ndvi < 0.82) return [0.19, 0.48, 0.12];
+                        else if (ndvi < 0.83) return [0.18, 0.47, 0.115];
+                        else if (ndvi < 0.84) return [0.17, 0.46, 0.11];
+                        else if (ndvi < 0.85) return [0.16, 0.45, 0.105];
+                        else if (ndvi < 0.86) return [0.15, 0.44, 0.1];
+                        else if (ndvi < 0.87) return [0.14, 0.43, 0.095];
+                        else if (ndvi < 0.88) return [0.13, 0.42, 0.09];
+                        else if (ndvi < 0.89) return [0.12, 0.41, 0.085];
+                        else if (ndvi < 0.9) return [0.11, 0.4, 0.08];
+                        else if (ndvi < 0.91) return [0.1, 0.39, 0.075];
+                        else if (ndvi < 0.92) return [0.095, 0.38, 0.07];
+                        else if (ndvi < 0.93) return [0.09, 0.37, 0.065];
+                        else if (ndvi < 0.94) return [0.085, 0.36, 0.06];
+                        else if (ndvi < 0.95) return [0.08, 0.35, 0.055];
+                        else if (ndvi < 0.96) return [0.075, 0.34, 0.05];
+                        else if (ndvi < 0.97) return [0.07, 0.33, 0.045];
+                        else if (ndvi < 0.98) return [0.065, 0.32, 0.04];
+                        else if (ndvi < 0.99) return [0.06, 0.31, 0.035];
+                        else return [0.055, 0.3, 0.03];
                     }
                 """
         }
@@ -341,6 +373,9 @@ class DataLoader:
         # Create dictionaries by years to save images
         for year in range(start_year, end_year + 1):
             dataset[year] = {}
+
+        print(f"===========================================================================================================================================")
+        print(f"Getting images for coordinates [Latitude {round(latitude,2)}, Longitude {round(longitude,2)}]")
 
         for type_image in types_image:
 
@@ -391,7 +426,7 @@ class DataLoader:
                 dataset[year][type_image] = fragment_list
                 year = year + 1
         
-        print(f"Number of samples (fragments) for every year is ${len(dataset[start_year][types_image[0]])}")
+        print(f"Number of samples (fragments) for every year is {len(dataset[start_year][types_image[0]])}")
 
         return dataset
     

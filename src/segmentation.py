@@ -114,7 +114,7 @@ class Segmentator:
 
         if show_plots is True and image_rgb is not None:
             plt.imshow(np.clip(image_rgb * 2.5 / 255, 0, 1), cmap='gray')
-            plt.title('Image in RGB')
+            plt.title('Image in RGB (Second image parameter)')
             plt.show()
 
         if show_plots is True:
@@ -129,15 +129,15 @@ class Segmentator:
             plt.title('Histogram of colors in image to segment')
             plt.show()
 
-        gray_img = image_to_segment[:,:,1]
+        green_img = image_to_segment[:,:,1]
 
         if show_plots is True:
-            plt.imshow(gray_img, cmap='gray')
-            plt.title('Image in Gray')
+            plt.imshow(green_img, cmap='gray')
+            plt.title('Image with green Channel')
             plt.show()
 
         # Aplicamos un filtro gaussiano para emborronar las altas frecuencias
-        image_gaus = cv2.GaussianBlur(gray_img, (5,5), 0) # (5x5) es el tamaño del filtro y 0 es la desviación estándar
+        image_gaus = cv2.GaussianBlur(green_img, (5,5), 0) # (5x5) es el tamaño del filtro y 0 es la desviación estándar
 
         if show_plots is True:
             plt.imshow(image_gaus, cmap='gray')
@@ -146,19 +146,20 @@ class Segmentator:
 
         # Otra forma de mostrar el histograma (solo visualización)
         if show_plots is True:
-            plt.hist(gray_img.ravel(), bins=50) # .ravel convierte un array multidimensional en una dimension
+            plt.hist(green_img.ravel(), bins=50) # .ravel convierte un array multidimensional en una dimension
+            plt.title('Histogram of colors in image in green channel')
             plt.grid(True)
             plt.show()
 
         # Fijamos el umbral en base al histograma anterior
-        #t = 50
+        t = 34
 
         # Extreaemos la máscara binaria
-        #maxim = 255
-        #_, final_mask = cv2.threshold(gray_img, t, maxim, cv2.THRESH_BINARY)
+        maxim = 255
+        _, final_mask = cv2.threshold(green_img, t, maxim, cv2.THRESH_BINARY)
 
         # Fijamos el umbral con el método de OTSU
-        t, final_mask = cv2.threshold(gray_img,0,1,cv2.THRESH_OTSU) # 0 es por defecto y 1 es el valor máximo de la máscara
+        #t, final_mask = cv2.threshold(image_gaus,0,1,cv2.THRESH_OTSU) # 0 es por defecto y 1 es el valor máximo de la máscara
         
         if show_plots is True:
             print(np.unique(final_mask))
@@ -213,15 +214,39 @@ class Segmentator:
         img_mask_clean = morphology.remove_small_objects(mask_difference.astype('bool'),min_size=50).astype('uint8')
         ground_truth = morphology.remove_small_holes(img_mask_clean.astype('bool'), area_threshold=50).astype('uint8')
 
+        ground_truth = ground_truth[:, :, np.newaxis]
+
         if show_plots is True:
+            # Create a figure with two subplots
+            plt.figure(figsize=(12, 5))
+
+            plt.subplot(2, 3, 1)
+            plt.imshow(np.clip(image_reference_1 * 2.5 / 255, 0, 1), cmap='gray')
+            plt.title('Image RGB Year 1')
+
+            plt.subplot(2, 3, 2)
+            plt.imshow(np.clip(image_reference_2 * 2.5 / 255, 0, 1), cmap='gray')
+            plt.title('Image RGB Year 2')
+
+            plt.subplot(2, 3, 3)
+            conts,_ = cv2.findContours(ground_truth, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) # Encontramos los contornos en una máscara 
+            image_with_conts = cv2.drawContours(np.clip(image_reference_2 * 2.5 / 255, 0, 1), conts, -1, (124,47,135), 1) # Dibujamos los contornos          
+            plt.imshow(image_with_conts, cmap='gray')
+            plt.title('Deforestation')
+
+            plt.subplot(2, 3, 4)
             plt.imshow(mask_reference_1, cmap='gray')
-            plt.title('First Year')
-            plt.show()
+            plt.title('Mask Year 1')
+
+            plt.subplot(2, 3, 5)
             plt.imshow(mask_reference_2, cmap='gray')
-            plt.title('Second Year')
-            plt.show()
+            plt.title('Mask Year 2')
+
+            plt.subplot(2, 3, 6)         
             plt.imshow(ground_truth, cmap='gray')
-            plt.title('GT')
+            plt.title('Deforestation Mask')
+            
+            plt.tight_layout()
             plt.show()
 
         return ground_truth
