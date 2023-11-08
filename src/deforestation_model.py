@@ -7,6 +7,7 @@ from src.segmentation import Segmentator
 from src.utils import *
 from sklearn.model_selection import train_test_split
 from src.models.u_net import *
+from src.models.res_u_net import *
 
 import numpy as np
 import tensorflow as tf
@@ -28,6 +29,8 @@ class DeforestationModel:
 
         if model_architecture == 'u_net':
             self.model = unet_model(input_shape)
+        elif model_architecture == 'res_u_net':
+            self.model = res_unet_model(input_shape)
         else:
             self.model = unet_model(input_shape)
 
