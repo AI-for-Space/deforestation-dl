@@ -430,7 +430,7 @@ class DataLoader:
 
         return dataset
     
-    def display_random_samples(self, dataset, number_of_samples,type_image):
+    def display_random_samples_dataset(self, dataset, number_of_samples,type_image):
         ncols = len(dataset.keys())
         nrows = number_of_samples  # Number of rows of samples
 
