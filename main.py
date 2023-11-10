@@ -34,26 +34,28 @@ def main():
     dataset_site_A = loader.get_image(-3.764226,-52.128754, SIZE_FRAGMENTS, START_YEAR, END_YEAR, MONTHS, TYPE_IMAGES, CLOUD_COVERAGE)
     dataset_site_B = loader.get_image(-7.009882, -59.907156, SIZE_FRAGMENTS, START_YEAR, END_YEAR, MONTHS, TYPE_IMAGES, CLOUD_COVERAGE)
     dataset_site_C = loader.get_image(-7.337594, -55.309489, SIZE_FRAGMENTS, START_YEAR, END_YEAR, MONTHS, TYPE_IMAGES, CLOUD_COVERAGE)
-    
-    X_train, X_test, Y_train, Y_test, X_year_1, X_year_2, X, Y = get_train_test_data([dataset_site_A,dataset_site_B,dataset_site_C],YEAR_1,YEAR_2,0.2)
+    dataset_site_D = loader.get_image(-7.849816, -72.399943, SIZE_FRAGMENTS, START_YEAR, END_YEAR, MONTHS, TYPE_IMAGES, CLOUD_COVERAGE)
+
+    X_train, X_test, Y_train, Y_test, X_year_1, X_year_2, X, Y = get_train_test_data([dataset_site_A,dataset_site_B,dataset_site_C,dataset_site_D],YEAR_1,YEAR_2,0.2)
     
     # Training 
+    """
     model = DeforestationModel('u_net',X_train[0].shape)
     model.display_random_samples_years_mask(X_year_1, X_year_2, Y, 3)
     model.train(X_train,Y_train)
 
     # Predict
-    predictions_deforestation = model.predict(X_test)
+    predictions_deforestation = model.predict(X_test,Y_test)
     
     NUMBER_TEST_SAMPLES = 5
     model.display_predictions(X_test,predictions_deforestation,NUMBER_TEST_SAMPLES)
 
+    """
 
-
-    #loader.display_random_samples_dataset(dataset_site_A,5,'rgb')
-    #loader.display_region_along_years(dataset_site_A,356,'nvdi_edited')
+    loader.display_random_samples_dataset(dataset_site_A,5,'rgb')
+    loader.display_region_along_years(dataset_site_A,356,'rgb')
     #segmentator.segment(dataset_site_A[2021]['nvdi_edited'][356],dataset_site_A[2021]['rgb'][356],True)
-    #deforestation = segmentator.get_ground_truth(dataset_site_A[2019]['rgb'][356],dataset_site_A[2021]['rgb'][356],True)
+    deforestation = segmentator.get_ground_truth(dataset_site_A[2017]['rgb'][356],dataset_site_A[2021]['rgb'][356],True)
     
     #conts,_ = cv2.findContours(deforestation, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) # Encontramos los contornos en una máscara 
     #image_with_conts = cv2.drawContours(np.clip(dataset_site_A[2019]['rgb'][24] * 2.5 / 255, 0, 1), conts, -1, (124,47,135), 1) # Dibujamos los contornos          

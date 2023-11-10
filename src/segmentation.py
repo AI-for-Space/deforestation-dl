@@ -102,16 +102,6 @@ class Segmentator:
 
         image = None
 
-        """if image_path is None:
-            image = image_dataset
-        else:
-            image = cv2.imread(image_path)"""
-        
-
-        if image_rgb is not None:
-            image_rgb = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2RGB)
-        image_to_segment = cv2.cvtColor(image_to_segment, cv2.COLOR_BGR2RGB)
-
         if show_plots is True and image_rgb is not None:
             plt.imshow(np.clip(image_rgb * 2.5 / 255, 0, 1), cmap='gray')
             plt.title('Image in RGB (Second image parameter)')
@@ -120,6 +110,7 @@ class Segmentator:
         if show_plots is True:
             plt.imshow(np.clip(image_to_segment * 2.5 / 255, 0, 1), cmap='gray')
             plt.title('Image to segment')
+            plt.axis('off')
             plt.show()
         
         # Otra forma de mostrar el histograma (solo visualización)
@@ -134,6 +125,7 @@ class Segmentator:
         if show_plots is True:
             plt.imshow(green_img, cmap='gray')
             plt.title('Image with green Channel')
+            plt.axis('off')
             plt.show()
 
         # Aplicamos un filtro gaussiano para emborronar las altas frecuencias
@@ -167,7 +159,8 @@ class Segmentator:
         # Visualizamos para corroborar que se obtiene el mismo resultado
         if show_plots is True:
             plt.imshow(final_mask, cmap='gray')
-            plt.title('Máscara Otsu t=' + str(t))
+            plt.title('Mask with threshold t=' + str(t))
+            plt.axis('off')
             plt.show()
 
         # Eliminamos pequeños huecos en blanco
@@ -178,6 +171,7 @@ class Segmentator:
         if show_plots is True:
             plt.imshow(img_mask_clean, cmap='gray')
             plt.title('Deleted holes')
+            plt.axis('off')
             plt.show()
 
 
@@ -186,7 +180,8 @@ class Segmentator:
 
         if show_plots is True:
             plt.imshow(image_filled, cmap='gray')
-            plt.title('Filled deforested areas')
+            plt.title('Filled small holes')
+            plt.axis('off')
             plt.show()
 
 
@@ -197,7 +192,8 @@ class Segmentator:
             conts,_ = cv2.findContours(image_filled, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) # Encontramos los contornos en una máscara 
             image_with_conts = cv2.drawContours(np.clip(image_rgb.copy() * 2.5 / 255, 0, 1), conts, -1, (124,47,135), 1) # Dibujamos los contornos          
             plt.imshow(image_with_conts, cmap='gray')
-            plt.title('Areas detected')
+            plt.title('Ground Thruth')
+            plt.axis('off')
             plt.show()
 
         return image_filled
@@ -222,28 +218,34 @@ class Segmentator:
 
             plt.subplot(2, 3, 1)
             plt.imshow(np.clip(image_reference_1 * 2.5 / 255, 0, 1), cmap='gray')
+            plt.axis('off')
             plt.title('Image RGB Year 1')
 
             plt.subplot(2, 3, 2)
             plt.imshow(np.clip(image_reference_2 * 2.5 / 255, 0, 1), cmap='gray')
+            plt.axis('off')
             plt.title('Image RGB Year 2')
 
             plt.subplot(2, 3, 3)
             conts,_ = cv2.findContours(ground_truth, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) # Encontramos los contornos en una máscara 
             image_with_conts = cv2.drawContours(np.clip(image_reference_2 * 2.5 / 255, 0, 1), conts, -1, (124,47,135), 1) # Dibujamos los contornos          
             plt.imshow(image_with_conts, cmap='gray')
+            plt.axis('off')
             plt.title('Deforestation')
 
             plt.subplot(2, 3, 4)
             plt.imshow(mask_reference_1, cmap='gray')
+            plt.axis('off')
             plt.title('Mask Year 1')
 
             plt.subplot(2, 3, 5)
             plt.imshow(mask_reference_2, cmap='gray')
+            plt.axis('off')
             plt.title('Mask Year 2')
 
             plt.subplot(2, 3, 6)         
             plt.imshow(ground_truth, cmap='gray')
+            plt.axis('off')
             plt.title('Deforestation Mask')
             
             plt.tight_layout()

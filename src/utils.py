@@ -4,7 +4,8 @@ import numpy as np
 import random
 from src.segmentation import Segmentator
 from sklearn.model_selection import train_test_split
-
+import os
+import cv2
 segmentator = Segmentator()
 
 def get_train_test_data(datasets, year_1, year_2, test_size):
@@ -63,4 +64,34 @@ def display_images_deforestation(image_year1,image_year2,mask):
         plt.title('Mask')
 
         plt.tight_layout()  # Ensure that the subplots don't overlap
-        plt.show()    
+        plt.show()
+
+
+def display_picked_areas():
+        imageA = cv2.imread(os.path.join(os.getcwd(),"dataset/2020/Latitude_-3.76_Longitude_-52.13_Type_rgb.png"))
+        imageB = cv2.imread(os.path.join(os.getcwd(),"dataset/2020/Latitude_-7.01_Longitude_-59.91_Type_rgb.png"))
+        imageC = cv2.imread(os.path.join(os.getcwd(),"dataset/2020/Latitude_-7.34_Longitude_-55.31_Type_rgb.png"))
+        imageD = cv2.imread(os.path.join(os.getcwd(),"dataset/2020/Latitude_-7.85_Longitude_-72.4_Type_rgb.png"))
+
+        # Plot accuracy on the first subplot
+        plt.subplot(1, 4, 1)
+        plt.imshow(np.clip(imageA * 2.5 / 255, 0, 1),cmap='gray')
+        plt.axis('off')  # Turn off axis values
+
+        # Plot accuracy on the first subplot
+        plt.subplot(1, 4, 2)
+        plt.imshow(np.clip(imageB * 2.5 / 255, 0, 1),cmap='gray')
+        plt.axis('off')  # Turn off axis values
+
+        # Plot accuracy on the first subplot
+        plt.subplot(1, 4, 3)
+        plt.imshow(np.clip(imageC * 2.5 / 255, 0, 1),cmap='gray')
+        plt.axis('off')  # Turn off axis values
+
+        # Plot accuracy on the first subplot
+        plt.subplot(1, 4, 4)
+        plt.imshow(np.clip(imageD * 2.5 / 255, 0, 1),cmap='gray')
+        plt.axis('off')  # Turn off axis values
+
+        plt.tight_layout()  # Ensure that the subplots don't overlap
+        plt.show()

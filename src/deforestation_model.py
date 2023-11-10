@@ -5,22 +5,16 @@ import os
 
 from src.segmentation import Segmentator
 from src.utils import *
-from sklearn.model_selection import train_test_split
 from src.models.u_net import *
 from src.models.res_u_net import *
 
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
-from keras.layers import Input
-from keras.layers import Dropout
-from keras.layers import Conv2D, Conv2DTranspose
-from keras.layers import MaxPooling2D
-from keras.layers import Concatenate
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras import backend as K
-from keras.models import Model, load_model
-
+import sklearn.metrics as metrics
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import jaccard_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 
 class DeforestationModel:
     def __init__(self, model_architecture,input_shape):
@@ -85,8 +79,30 @@ class DeforestationModel:
             plt.tight_layout()  # Ensure that the subplots don't overlap
             plt.show()
     
-    def predict(self,X_test):
-        return self.model.predict(X_test)
+    def predict(self,X_test,Y_test):
+        deforestation_predictions = self.model.predict(X_test)
+        y_predictions_evaluation = deforestation_predictions.reshape(-1)
+        y_test_evaulation = Y_test.reshape(-1)
+
+        y_predictions_evaluation = (y_predictions_evaluation > 0.1).astype(np.uint8)
+        
+        # Calculate accuracy
+        accuracy = accuracy_score(y_test_evaulation, y_predictions_evaluation)
+
+        # Calculate Jaccard (IoU)
+        jaccard = jaccard_score(y_test_evaulation, y_predictions_evaluation)
+
+        f1 = f1_score(y_test_evaulation, y_predictions_evaluation)
+        precision = precision_score(y_test_evaulation, y_predictions_evaluation)
+        recall = recall_score(y_test_evaulation, y_predictions_evaluation)
+
+        print("Accuracy:", accuracy)
+        print("Jaccard (IoU):", jaccard)
+        print("Dice Score F1:", f1)
+        print("Precision:", precision)
+        print("Recall:", recall)
+
+        return deforestation_predictions
     
     def display_random_samples_years_mask(self, dataset_1, dataset_2, Y, number_of_samples):
         ncols = 3
