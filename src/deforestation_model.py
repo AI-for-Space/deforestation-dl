@@ -40,7 +40,7 @@ class DeforestationModel:
         else:
             # If the weights file doesn't exist, train the model and save the weights
             self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-            model_history = self.model.fit(X_train, Y_train, validation_split=0.1, epochs=10, batch_size=32)
+            model_history = self.model.fit(X_train, Y_train, validation_split=0.2, epochs=10, batch_size=32)
             
             # Save the model weights
             self.model.save_weights(weights_file)
@@ -53,54 +53,65 @@ class DeforestationModel:
             loss = model_history.history['loss']
             val_loss = model_history.history['val_loss']
 
-            epochs = range(1, len(accuracy) + 1)
+            epochs = range(0, len(accuracy))
 
-            # Create a figure with two subplots
-            plt.figure(figsize=(12, 5))
-
-            # Plot accuracy on the first subplot
+            # Gráficas
+            plt.style.use("ggplot")
+            plt.figure()
             plt.subplot(1, 2, 1)
-            plt.plot(epochs, accuracy, 'bo', label='Training accuracy')
-            plt.plot(epochs, val_accuracy, 'b', label='Validation accuracy')
-            plt.title('Training and Validation Accuracy')
-            plt.xlabel('Epochs')
-            plt.ylabel('Accuracy')
+            plt.plot(epochs, model_history.history["loss"], label="train_loss")
+            plt.plot(epochs, model_history.history["val_loss"], label="val_loss")
+            plt.title("Training and Validation Loss")
+            plt.xlabel("Epoch #")
+            plt.ylabel("Accuracy")
             plt.legend()
-
-            # Plot loss on the second subplot
             plt.subplot(1, 2, 2)
-            plt.plot(epochs, loss, 'ro', label='Training loss')
-            plt.plot(epochs, val_loss, 'r', label='Validation loss')
-            plt.title('Training and Validation Loss')
-            plt.xlabel('Epochs')
-            plt.ylabel('Loss')
+            plt.plot(epochs, model_history.history["accuracy"], label="train_acc")
+            plt.plot(epochs, model_history.history["val_accuracy"], label="val_acc")
+            plt.title("Training and Validation Accuracy")
+            plt.xlabel("Epoch #")
+            plt.ylabel("Accuracy")
             plt.legend()
-
-            plt.tight_layout()  # Ensure that the subplots don't overlap
             plt.show()
+
     
     def predict(self,X_test,Y_test):
         deforestation_predictions = self.model.predict(X_test)
         y_predictions_evaluation = deforestation_predictions.reshape(-1)
-        y_test_evaulation = Y_test.reshape(-1)
-
+        y_test_evaluation = Y_test.reshape(-1)
         y_predictions_evaluation = (y_predictions_evaluation > 0.1).astype(np.uint8)
+
+        tn, fp, fn, tp = metrics.confusion_matrix(y_test_evaluation, y_predictions_evaluation).ravel()
+        # print(tn, fp, fn, tp)
+        
+        intersection = np.sum(np.logical_and(y_predictions_evaluation, y_test_evaluation)) # Logical AND  
+        union = np.sum(np.logical_or(y_predictions_evaluation, y_test_evaluation)) # Logical OR 
+            
+        accu = (tp + tn)/(tn + fp + fn + tp)
+        Prec = tp/(tp + fp)
+        R = tp/(tp + fn)
+        F1 = 2 * Prec* R/(Prec + R)
+        Iou = intersection/union
+        Alarm_Area = (tp + fp)/(tn + fp + fn + tp)
+
         
         # Calculate accuracy
-        accuracy = accuracy_score(y_test_evaulation, y_predictions_evaluation)
+        accuracy = accuracy_score(y_test_evaluation, y_predictions_evaluation)
 
         # Calculate Jaccard (IoU)
-        jaccard = jaccard_score(y_test_evaulation, y_predictions_evaluation)
+        jaccard = jaccard_score(y_test_evaluation, y_predictions_evaluation)
 
-        f1 = f1_score(y_test_evaulation, y_predictions_evaluation)
-        precision = precision_score(y_test_evaulation, y_predictions_evaluation)
-        recall = recall_score(y_test_evaulation, y_predictions_evaluation)
+        f1 = f1_score(y_test_evaluation, y_predictions_evaluation)
+        precision = precision_score(y_test_evaluation, y_predictions_evaluation)
+        recall = recall_score(y_test_evaluation, y_predictions_evaluation)
 
-        print("Accuracy:", accuracy)
-        print("Jaccard (IoU):", jaccard)
-        print("Dice Score F1:", f1)
-        print("Precision:", precision)
-        print("Recall:", recall)
+        print("Accuracy:", accuracy, "-",accu)
+        print("Jaccard (IoU):", jaccard,"-",Iou)
+        print("Dice Score F1:", f1,"-",F1)
+        print("Precision:", precision,"-",Prec)
+        print("Recall:", recall,"-",R)
+        print("Alarm area:, ", Alarm_Area,"-")
+
 
         return deforestation_predictions
     

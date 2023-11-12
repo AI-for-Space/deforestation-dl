@@ -39,7 +39,7 @@ def main():
     X_train, X_test, Y_train, Y_test, X_year_1, X_year_2, X, Y = get_train_test_data([dataset_site_A,dataset_site_B,dataset_site_C,dataset_site_D],YEAR_1,YEAR_2,0.2)
     
     # Training 
-    """
+    
     model = DeforestationModel('u_net',X_train[0].shape)
     model.display_random_samples_years_mask(X_year_1, X_year_2, Y, 3)
     model.train(X_train,Y_train)
@@ -50,8 +50,8 @@ def main():
     NUMBER_TEST_SAMPLES = 5
     model.display_predictions(X_test,predictions_deforestation,NUMBER_TEST_SAMPLES)
 
+    
     """
-
     loader.display_random_samples_dataset(dataset_site_A,5,'rgb')
     loader.display_region_along_years(dataset_site_A,356,'rgb')
     #segmentator.segment(dataset_site_A[2021]['nvdi_edited'][356],dataset_site_A[2021]['rgb'][356],True)
@@ -62,6 +62,7 @@ def main():
     #plt.imshow(image_with_conts, cmap='gray')
     #plt.title('Areas detected')
     #plt.show()
+    """
 
 
 
